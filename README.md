@@ -3,6 +3,9 @@ Generates minimum time flight paths given starting position/heading, ending posi
 
 To install, include:
 <script src="flight-path-planner.js"></script> 
+You must also include arc.js
+<script src="arc.js"></script>
+https://github.com/springmeyer/arc.js
 
 To calculate flight path with lat longs:
 flightPlanner.latLongTurnCalculator(initLat,initLng,inithead,finLat,finLng,finhead,speed,AngleOfBank)
