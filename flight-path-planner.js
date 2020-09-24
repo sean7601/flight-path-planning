@@ -759,7 +759,7 @@ flightPlanner.get_distance_between_points = function(lat1, lon1, lat2, lon2){
 }
 //secdist is how often you want a position in the gamepath array
 //you can use any units as long as you are consistent across all variables
-flightPlanner.flightPlannerulator = function(initx,inity,inithead,finx,finy,finhead,speed,aob,secdist){
+flightPlanner.TurnCalculator = function(initx,inity,inithead,finx,finy,finhead,speed,aob,secdist){
 	var turnrad = flightPlanner.getTurnRadius(speed,aob);
 	var circles = flightPlanner.generatecircles(initx,inity,finx,finy,inithead,finhead,turnrad);
 	var rightoutside = flightPlanner.determineoutsidetangent(circles.initright,circles.finright,90,turnrad);
@@ -808,7 +808,7 @@ flightPlanner.measureLatPathLength = function(latpath){
 
 //secdist is how often you want a position in the gamepath array
 //turnrad and secdist should be nautical miles
-flightPlanner.latLongflightPlannerulator = function(initLat,initLng,inithead,finLat,finLng,finhead,speed,aob,secdist){
+flightPlanner.latLongTurnCalculator = function(initLat,initLng,inithead,finLat,finLng,finhead,speed,aob,secdist){
 	if(!secdist)
 		secdist = .05;
 	var turnrad = flightPlanner.getTurnRadius(speed,aob);
@@ -841,15 +841,6 @@ flightPlanner.latLongflightPlannerulator = function(initLat,initLng,inithead,fin
 	ll: flightPlanner.determineinsidetangent(tangentcirclel.left,circles.finleft,90,-90,turnrad),
 	lr: flightPlanner.determineinsidetangent(tangentcirclel.right,circles.finleft,90,-90,turnrad)};
 	console.log(tangentinside);
-	
-	/*
-	rightoutside = flightPlanner.adjust_for_great_circle(initLat,initLng,initx,inity,finLat,finLng,finx,finy,rightoutside)
-	leftoutside = flightPlanner.adjust_for_great_circle(initLat,initLng,initx,inity,finLat,finLng,finx,finy,leftoutside)
-	rightinside = flightPlanner.adjust_for_great_circle(initLat,initLng,initx,inity,finLat,finLng,finx,finy,rightinside)
-	leftinside = flightPlanner.adjust_for_great_circle(initLat,initLng,initx,inity,finLat,finLng,finx,finy,leftinside)
-	tangentcircler = flightPlanner.adjust_for_great_circle(initLat,initLng,initx,inity,finLat,finLng,finx,finy,tangentcircler)
-	tangentcirclel = flightPlanner.adjust_for_great_circle(initLat,initLng,initx,inity,finLat,finLng,finx,finy,tangentcirclel)
-	*/
 
 	var mindist = flightPlanner.calcmindist(initx,inity,rightoutside,rightinside,leftoutside,leftinside,circles,finx,finy,tangentoutside,tangentinside,tangentcircler,tangentcirclel,turnrad);
 
@@ -865,7 +856,7 @@ flightPlanner.latLongflightPlannerulator = function(initLat,initLng,inithead,fin
 	mindist = flightPlanner.measureLatPathLength(gameAndLatpath.latpath);
 
 	var flightMinutes = mindist / speed * 60;//minutes
-	return {"mindist":mindist,"gamepath":gamepath,"latpath":gameAndLatpath.latpath,"flightMinutes":flightMinutes};
+	return {"distance":mindist,"latpath":gameAndLatpath.latpath,"flightMinutes":flightMinutes};
 
 };
 
