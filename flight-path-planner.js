@@ -166,10 +166,13 @@ flightPlanner.determineinsidetangent = function(firstturn,lastturn,direction1,di
 				result.lasty = insidefin.pt1y;
 		};
 	}
+
 		return result;
 };
 
 flightPlanner.pathdistance = function(startx,starty,departx,departy,arrivex,arrivey,endx,endy,circle1x,circle1y,circle2x,circle2y,direction1,direction2,turnradv){
+	if(departx == arrivex || departy == arrivey)
+		return
 	var angle1 = flightPlanner.radtodeg(Math.atan2(startx-circle1x,starty-circle1y));
 	var angle2 = flightPlanner.radtodeg(Math.atan2(departx-circle1x,departy-circle1y));
 	var angle3 = flightPlanner.radtodeg(Math.atan2(arrivex-circle2x,arrivey-circle2y));
@@ -451,6 +454,7 @@ flightPlanner.storetangent = function(startx,starty,endx,endy,startcircle,tangen
 
 
 flightPlanner.storetangentlat = function(initLat,initLng,finLat,finLng,startx,starty,endx,endy,startcircle,tangentcircle,path,endcircle,direction1,direction2,direction3,turnrad,secdist,gamepath){
+	console.log("tangent")
 	var tangentstart = new Object;
 	tangentstart.x = tangentcircle.xint;
 	tangentstart.y = tangentcircle.yint;
@@ -511,7 +515,6 @@ flightPlanner.storetangentlat = function(initLat,initLng,finLat,finLng,startx,st
 };
 
 flightPlanner.storevanilla = function(startx,starty,endx,endy,startcircle,path,endcircle,direction1,direction2,turnrad,secdist,gamepath){
-	console.log(path)
 	var startpath = new Object;
 	startpath.x = path.firstx;
 	startpath.y = path.firsty;
@@ -544,7 +547,7 @@ flightPlanner.storevanilla = function(startx,starty,endx,endy,startcircle,path,e
 };
 
 flightPlanner.storevanillalat = function(initLat,initLng,finLat,finLng,startx,starty,endx,endy,startcircle,path,endcircle,direction1,direction2,turnrad,secdist,gamepath){
-	console.log(path)
+	console.log("vanilla")
 	var startpath = new Object;
 	startpath.x = path.firstx;
 	startpath.y = path.firsty;
@@ -591,7 +594,6 @@ flightPlanner.storevanillalat = function(initLat,initLng,finLat,finLng,startx,st
 	var generator = new arc.GreatCircle({y:straightStart[0],x:straightStart[1]}, {y:straightEnd[0],x:straightEnd[1]}, {'name': 'straight path'});
     var line = generator.Arc(50);
 	var testLatLngs = line.geometries[0].coords;
-	console.log("thearc",testLatLngs)
     for(var i=0;i<testLatLngs.length;i++){
 		latpath.push([testLatLngs[i][1],testLatLngs[i][0]])
     }
@@ -658,42 +660,56 @@ flightPlanner.storebestpath = function(initx,inity,rightoutside,rightinside,left
 
 flightPlanner.storelatpath = function(initLat,initLng,finLat,finLng,initx,inity,rightoutside,rightinside,leftoutside,leftinside,circles,finx,finy,tangentoutside,tangentinside,tangentcircler,tangentcirclel,turnrad,secdist,gamepath){
 	//cpdcontext.strokeStyle = "#FF00FF";
+		var pathType = ""
 		if(rightoutside.distance == mindist){
+			pathType = "rightoutside";
 			gamepath = flightPlanner.storevanillalat(initLat,initLng,finLat,finLng,initx,inity,finx,finy,circles.initright,rightoutside,circles.finright,90,90,turnrad,secdist,gamepath);
 		}
 		else if(leftoutside.distance == mindist){
+			pathType = "leftoutside";
 			gamepath = flightPlanner.storevanillalat(initLat,initLng,finLat,finLng,initx,inity,finx,finy,circles.initleft,leftoutside,circles.finleft,-90,-90,turnrad,secdist,gamepath);
 		}
 		else if(rightinside.distance == mindist){
+			pathType = "rightinside";
 			gamepath = flightPlanner.storevanillalat(initLat,initLng,finLat,finLng,initx,inity,finx,finy,circles.initright,rightinside,circles.finleft,90,-90,turnrad,secdist,gamepath);
 		}
 		else if(leftinside.distance == mindist){
+			pathType = "leftinside";
 			gamepath = flightPlanner.storevanillalat(initLat,initLng,finLat,finLng,initx,inity,finx,finy,circles.initleft,leftinside,circles.finright,-90,90,turnrad,secdist,gamepath);
 		}
 		else if(flightPlanner.turns.torrd == mindist){
+			pathType = "torrd";
 			gamepath = flightPlanner.storetangentlat(initLat,initLng,finLat,finLng,initx,inity,finx,finy,circles.initright,tangentcircler.right,tangentoutside.rr,circles.finleft,90,-90,-90,turnrad,secdist,gamepath);
 		}
 		else if(flightPlanner.turns.torld == mindist){
+			pathType = "torld";
 			gamepath = flightPlanner.storetangentlat(initLat,initLng,finLat,finLng,initx,inity,finx,finy,circles.initright,tangentcircler.left,tangentoutside.rl,circles.finleft,90,-90,-90,turnrad,secdist,gamepath);
 		}
 		else if(flightPlanner.turns.tolld == mindist){
+			pathType = "tolld";
 			gamepath = flightPlanner.storetangentlat(initLat,initLng,finLat,finLng,initx,inity,finx,finy,circles.initleft,tangentcirclel.left,tangentoutside.ll,circles.finright,-90,90,90,turnrad,secdist,gamepath);
 		}
 		else if(flightPlanner.turns.tolrd == mindist){
+			pathType = "tolrd";
 			gamepath = flightPlanner.storetangentlat(initLat,initLng,finLat,finLng,initx,inity,finx,finy,circles.initleft,tangentcirclel.right,tangentoutside.lr,circles.finright,-90,90,90,turnrad,secdist,gamepath);
 		}
 		else if(flightPlanner.turns.tirrd == mindist){
+			pathType = "tirrd";
 			gamepath = flightPlanner.storetangentlat(initLat,initLng,finLat,finLng,initx,inity,finx,finy,circles.initright,tangentcircler.right,tangentinside.rr,circles.finright,90,-90,90,turnrad,secdist,gamepath);
 		}
 		else if(flightPlanner.turns.tirld == mindist){
+			pathType = "tirld";
 			gamepath = flightPlanner.storetangentlat(initLat,initLng,finLat,finLng,initx,inity,finx,finy,circles.initright,tangentcircler.left,tangentinside.rl,circles.finright,90,-90,90,turnrad,secdist,gamepath);
 		}
 		else if(flightPlanner.turns.tilld == mindist){
+			pathType = "tilld";
 			gamepath = flightPlanner.storetangentlat(initLat,initLng,finLat,finLng,initx,inity,finx,finy,circles.initleft,tangentcirclel.left,tangentinside.ll,circles.finleft,-90,90,-90,turnrad,secdist,gamepath);
 		}
 		else if(flightPlanner.turns.tilrd == mindist){
+			pathType = "tilrd";
 			gamepath = flightPlanner.storetangentlat(initLat,initLng,finLat,finLng,initx,inity,finx,finy,circles.initleft,tangentcirclel.right,tangentinside.lr,circles.finleft,-90,90,-90,turnrad,secdist,gamepath);
 		}
+		console.log(pathType)
 		return gamepath;
 	};
 
@@ -759,7 +775,7 @@ flightPlanner.get_distance_between_points = function(lat1, lon1, lat2, lon2){
 }
 //secdist is how often you want a position in the gamepath array
 //you can use any units as long as you are consistent across all variables
-flightPlanner.TurnCalculator = function(initx,inity,inithead,finx,finy,finhead,speed,aob,secdist){
+flightPlanner.turnCalculator = function(initx,inity,inithead,finx,finy,finhead,speed,aob,secdist){
 	var turnrad = flightPlanner.getTurnRadius(speed,aob);
 	var circles = flightPlanner.generatecircles(initx,inity,finx,finy,inithead,finhead,turnrad);
 	var rightoutside = flightPlanner.determineoutsidetangent(circles.initright,circles.finright,90,turnrad);
@@ -840,14 +856,16 @@ flightPlanner.latLongTurnCalculator = function(initLat,initLng,inithead,finLat,f
 	rl: flightPlanner.determineinsidetangent(tangentcircler.left,circles.finright,-90,90,turnrad),
 	ll: flightPlanner.determineinsidetangent(tangentcirclel.left,circles.finleft,90,-90,turnrad),
 	lr: flightPlanner.determineinsidetangent(tangentcirclel.right,circles.finleft,90,-90,turnrad)};
-	console.log(tangentinside);
 
+
+	console.log(rightinside)
+	
 	var mindist = flightPlanner.calcmindist(initx,inity,rightoutside,rightinside,leftoutside,leftinside,circles,finx,finy,tangentoutside,tangentinside,tangentcircler,tangentcirclel,turnrad);
 
 	var gamepath = flightPlanner.storebestpath(initx,inity,rightoutside,rightinside,leftoutside,leftinside,circles,finx,finy,tangentoutside,tangentinside,tangentcircler,tangentcirclel,turnrad,secdist,[]);
 	
 	var gameAndLatpath = flightPlanner.storelatpath(initLat,initLng,finLat,finLng,initx,inity,rightoutside,rightinside,leftoutside,leftinside,circles,finx,finy,tangentoutside,tangentinside,tangentcircler,tangentcirclel,turnrad,secdist,[]);
-	console.log(gameAndLatpath)
+
 	//add the starting and ending positions to the gamepath
 	gamepath.unshift({x:initx,y:inity,head:flightPlanner.degtorad(inithead)});
 	gamepath.push({x:finx,y:finy,head:flightPlanner.degtorad(finhead)});
@@ -856,7 +874,7 @@ flightPlanner.latLongTurnCalculator = function(initLat,initLng,inithead,finLat,f
 	mindist = flightPlanner.measureLatPathLength(gameAndLatpath.latpath);
 
 	var flightMinutes = mindist / speed * 60;//minutes
-	return {"distance":mindist,"latpath":gameAndLatpath.latpath,"flightMinutes":flightMinutes};
+	return {"dist":mindist,"gamepath":gamepath,"latpath":gameAndLatpath.latpath,"flightMinutes":flightMinutes};
 
 };
 
